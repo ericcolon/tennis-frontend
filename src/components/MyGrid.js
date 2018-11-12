@@ -4,6 +4,8 @@ import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Input from '@material-ui/core/Input';
 import Button from '@material-ui/core/Button';
+import axios from 'axios'
+
 
 const styles = theme => ({
   root: {
@@ -34,37 +36,64 @@ class MyGrid extends React.Component {
     this.handleInputChange = this.handleInputChange.bind(this)
   }
 
+  returnWinner = () => {
+    if (this.state.home > this.state.away) {
+      return this.state.home + " is Winner"
+    }
+    return this.state.away + " is Winner"
+  }
+
   handleClick = () => {
     const body = "home=" + this.state.home + "&away=" + this.state.away
-    fetch("http://localhost:8080/api/predict",
-    {
+    axios({
+      url: 'http://localhost:5000/api/predict',
       method: 'post',
-      headers: {
-        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-      },
-      body: encodeURI(body)
+      data: body
+    }).then(res => {
+    this.setState({
+      isLoaded: true,
+      message: this.returnWinner(),
+      homeValue: res.data.home + "%",
+      awayValue: res.data.away + "%"
     })
-      .then(res => res.json())
-      .then((res) => {
-        this.setState({
-          isLoaded: true,
-          message: this.returnWinner(),
-          homeValue: res.home + "%",
-          awayValue: res.away + "%"
-        })
-      }, (err) => {
-        this.setState({
-          isLoaded: true,
-          message: "Error: " + err
-        });
-      });
+  }).catch(err => {
+    this.setState({
+      isLoaded: true,
+      message: "Error: " + err
+    });
+  })
+    //
+    // fetch("http://localhost:5000/api/predict",
+    // {
+    //   method: 'post',
+    //   headers: {
+    //     "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+    //   },
+    //   body: encodeURI(body)
+    // })
+    //   .then(res => res.json())
+    //   .then((res) => {
+    //     this.setState({
+    //       isLoaded: true,
+    //       message: this.returnWinner(),
+    //       homeValue: res.home + "%",
+    //       awayValue: res.away + "%"
+    //     })
+    //   }, (err) => {
+    //     this.setState({
+    //       isLoaded: true,
+    //       message: "Error: " + err
+    //     });
+    //   });
     this.setState({message: "Loading ..."});
   };
 
   handleInputChange = (event) => {
-    this.setState({
-            [event.target.name]: event.target.value
-        });
+    if (!this.state.isLoaded) {
+      this.setState({
+        [event.target.name]: event.target.value
+      });
+    }
   }
 
   render() {
@@ -87,7 +116,7 @@ class MyGrid extends React.Component {
           </Grid>
           <Grid container justify="center" spacing={Number(spacing)}>
             <Grid item>
-              <p>{ this.homeValue }</p>
+              <p>{ this.state.homeValue }</p>
             </Grid>
             <Grid item>
               <Button variant="contained" color="primary" className={classes.button} onClick={this.handleClick} >
@@ -95,7 +124,7 @@ class MyGrid extends React.Component {
               </Button>
             </Grid>
             <Grid item>
-              <p>{ this.awayValue }</p>
+              <p>{ this.state.awayValue }</p>
             </Grid>
           </Grid>
           <Grid container justify="center" spacing={Number(spacing)}>
