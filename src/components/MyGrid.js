@@ -25,7 +25,7 @@ class MyGrid extends React.Component {
     super(props);
     this.state = {
       error: null,
-      isLoaded: false,
+      isLoaded: true,
       message: "",
       homeValue: "",
       awayValue: "",
@@ -36,15 +36,15 @@ class MyGrid extends React.Component {
     this.handleInputChange = this.handleInputChange.bind(this)
   }
 
-  returnWinner = () => {
-    if (this.state.home > this.state.away) {
+  returnWinner = (h, a) => {
+    if (parseInt(h) > parseInt(a)) {
       return this.state.home + " is Winner"
     }
     return this.state.away + " is Winner"
   }
 
   handleClick = () => {
-    const body = "home=" + this.state.home + "&away=" + this.state.away
+    var body = "home=" + this.state.home + "&away=" + this.state.away
     axios({
       url: 'http://localhost:5000/api/predict',
       method: 'post',
@@ -52,7 +52,7 @@ class MyGrid extends React.Component {
     }).then(res => {
     this.setState({
       isLoaded: true,
-      message: this.returnWinner(),
+      message: this.returnWinner(res.data.home, res.data.away),
       homeValue: res.data.home + "%",
       awayValue: res.data.away + "%"
     })
@@ -85,11 +85,11 @@ class MyGrid extends React.Component {
     //       message: "Error: " + err
     //     });
     //   });
-    this.setState({message: "Loading ..."});
+    this.setState({message: "Loading ...", homeValue: "", awayValue: "", isLoaded: false});
   };
 
   handleInputChange = (event) => {
-    if (!this.state.isLoaded) {
+    if (this.state.isLoaded) {
       this.setState({
         [event.target.name]: event.target.value
       });
