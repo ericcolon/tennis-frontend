@@ -6,7 +6,6 @@ import Input from '@material-ui/core/Input';
 import Button from '@material-ui/core/Button';
 import axios from 'axios'
 
-
 const styles = theme => ({
   root: {
     padding: 20,
@@ -29,7 +28,8 @@ class MyGrid extends React.Component {
       message: "",
       homeValue: "",
       awayValue: "",
-      spacing: 16
+      spacing: 16,
+      single: null
     }
 
     this.handleClick = this.handleClick.bind(this)
@@ -62,29 +62,6 @@ class MyGrid extends React.Component {
       message: "Error: " + err
     });
   })
-    //
-    // fetch("http://localhost:5000/api/predict",
-    // {
-    //   method: 'post',
-    //   headers: {
-    //     "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-    //   },
-    //   body: encodeURI(body)
-    // })
-    //   .then(res => res.json())
-    //   .then((res) => {
-    //     this.setState({
-    //       isLoaded: true,
-    //       message: this.returnWinner(),
-    //       homeValue: res.home + "%",
-    //       awayValue: res.away + "%"
-    //     })
-    //   }, (err) => {
-    //     this.setState({
-    //       isLoaded: true,
-    //       message: "Error: " + err
-    //     });
-    //   });
     this.setState({message: "Loading ...", homeValue: "", awayValue: "", isLoaded: false});
   };
 
@@ -95,6 +72,12 @@ class MyGrid extends React.Component {
       });
     }
   }
+
+  handleChange = name => value => {
+    this.setState({
+      [name]: value,
+    });
+  };
 
   render() {
     const { classes } = this.props;
