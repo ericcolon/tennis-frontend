@@ -7,46 +7,6 @@ import Button from '@material-ui/core/Button';
 import axios from 'axios'
 import Select from './mySelect'
 
-const suggestions = [
-  { label: 'Afghanistan' },
-  { label: 'Aland Islands' },
-  { label: 'Albania' },
-  { label: 'Algeria' },
-  { label: 'American Samoa' },
-  { label: 'Andorra' },
-  { label: 'Angola' },
-  { label: 'Anguilla' },
-  { label: 'Antarctica' },
-  { label: 'Antigua and Barbuda' },
-  { label: 'Argentina' },
-  { label: 'Armenia' },
-  { label: 'Aruba' },
-  { label: 'Australia' },
-  { label: 'Austria' },
-  { label: 'Azerbaijan' },
-  { label: 'Bahamas' },
-  { label: 'Bahrain' },
-  { label: 'Bangladesh' },
-  { label: 'Barbados' },
-  { label: 'Belarus' },
-  { label: 'Belgium' },
-  { label: 'Belize' },
-  { label: 'Benin' },
-  { label: 'Bermuda' },
-  { label: 'Bhutan' },
-  { label: 'Bolivia, Plurinational State of' },
-  { label: 'Bonaire, Sint Eustatius and Saba' },
-  { label: 'Bosnia and Herzegovina' },
-  { label: 'Botswana' },
-  { label: 'Bouvet Island' },
-  { label: 'Brazil' },
-  { label: 'British Indian Ocean Territory' },
-  { label: 'Brunei Darussalam' },
-].map(suggestion => ({
-  value: suggestion.label,
-  label: suggestion.label,
-}));
-
 const styles = theme => ({
   root: {
     padding: 20,
@@ -72,6 +32,8 @@ class MyGrid extends React.Component {
       message: "",
       homeValue: "",
       awayValue: "",
+      home: "",
+      away: "",
       spacing: 16,
       options_home: [],
       options_away: [],
@@ -96,41 +58,45 @@ class MyGrid extends React.Component {
       method: 'post',
       data: encodeURI(body)
     }).then(res => {
+      if (!res.data.away || !res.data.home) {
+        throw "No player home or/and away found"
+      }
+      this.setState({
+        isLoaded: true,
+        message: this.returnWinner(res.data.home, res.data.away),
+        homeValue: res.data.home + "%",
+        awayValue: res.data.away + "%"
+      })
+    }).catch(err => {
     this.setState({
       isLoaded: true,
-      message: this.returnWinner(res.data.home, res.data.away),
-      homeValue: res.data.home + "%",
-      awayValue: res.data.away + "%"
-    })
-  }).catch(err => {
-    this.setState({
-      isLoaded: true,
-      message: err
+      message: "" + err
     });
   })
     this.setState({message: "Loading ...", homeValue: "", awayValue: "", isLoaded: false});
   };
 
   handleInputChange = name => value => {
-    // if (this.state.isLoaded) {
-    //   this.setState({
-    //     [event.target.name]: event.target.value
-    //   });
-    // }
+    if (!value || value == "") {
+      return 
+    }
+    
     var body = "player=" + value
     axios({
       url: 'http://localhost:5000/api/player',
       method: 'post',
       data: encodeURI(body)
     }).then(res => {
+      if (!res.data.data) {
+        return 
+      }
       var tab = []
-      res.ForEach(val => {
-        tab.push({"label": val});
+      Object.keys(res.data.data).map((val) => {
+        tab.push({
+          "value": res.data.data[val],
+          "label": res.data.data[val]
+        });
       })
-      tab.map(opt => ({
-        value: opt.label,
-        label: opt.label,
-      }));
       this.setState({
         ["options_" + name]: tab
       })
@@ -139,16 +105,12 @@ class MyGrid extends React.Component {
         message: "" + err
       });
     })
-
-    //load the api with the right value
-    console.log("in", name, value);
   }
 
   handleOnChange = name => value => {
     this.setState({
       [name]: value.value
     });
-    console.log("on", name, value);
   }
 
   render() {
@@ -162,7 +124,7 @@ class MyGrid extends React.Component {
             <Grid item>
               <Select
                 className={classes.select}
-                options={this.props.options}
+                options={this.state.options_home}
                 onChange={this.handleOnChange('home')}
                 onInputChange={this.handleInputChange('home')}
               />
@@ -173,8 +135,8 @@ class MyGrid extends React.Component {
             <Grid item>
               <Select
                 className={classes.select}
-                options={this.props.options}
-                onChange={this.handleInputChange('away')}
+                options={this.state.options_away}
+                onChange={this.handleOnChange('away')}
                 onInputChange={this.handleInputChange('away')}
               />
             </Grid>
