@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import './App.css';
-//import GuttersGrid from './components/MyGrid'
-import MySelect from './components/mySelect'
+import MyPredict from './components/MyGrid'
 
 class App extends Component {
   render() {
     return (
       <div className="App">
-        <MySelect />
+        <MyPredict />
       </div>
     );
   }

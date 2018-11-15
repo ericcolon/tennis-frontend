@@ -12,50 +12,10 @@ import MenuItem from '@material-ui/core/MenuItem';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 
-const suggestions = [
-  { label: 'Afghanistan' },
-  { label: 'Aland Islands' },
-  { label: 'Albania' },
-  { label: 'Algeria' },
-  { label: 'American Samoa' },
-  { label: 'Andorra' },
-  { label: 'Angola' },
-  { label: 'Anguilla' },
-  { label: 'Antarctica' },
-  { label: 'Antigua and Barbuda' },
-  { label: 'Argentina' },
-  { label: 'Armenia' },
-  { label: 'Aruba' },
-  { label: 'Australia' },
-  { label: 'Austria' },
-  { label: 'Azerbaijan' },
-  { label: 'Bahamas' },
-  { label: 'Bahrain' },
-  { label: 'Bangladesh' },
-  { label: 'Barbados' },
-  { label: 'Belarus' },
-  { label: 'Belgium' },
-  { label: 'Belize' },
-  { label: 'Benin' },
-  { label: 'Bermuda' },
-  { label: 'Bhutan' },
-  { label: 'Bolivia, Plurinational State of' },
-  { label: 'Bonaire, Sint Eustatius and Saba' },
-  { label: 'Bosnia and Herzegovina' },
-  { label: 'Botswana' },
-  { label: 'Bouvet Island' },
-  { label: 'Brazil' },
-  { label: 'British Indian Ocean Territory' },
-  { label: 'Brunei Darussalam' },
-].map(suggestion => ({
-  value: suggestion.label,
-  label: suggestion.label,
-}));
-
 const styles = theme => ({
   root: {
     flexGrow: 1,
-    height: 250,
+    width: 250,
   },
   input: {
     display: 'flex',
@@ -174,32 +134,8 @@ function ValueContainer(props) {
   return <div className={props.selectProps.classes.valueContainer}>{props.children}</div>;
 }
 
-function MultiValue(props) {
-  return (
-    <Chip
-      tabIndex={-1}
-      label={props.children}
-      className={classNames(props.selectProps.classes.chip, {
-        [props.selectProps.classes.chipFocused]: props.isFocused,
-      })}
-      onDelete={props.removeProps.onClick}
-      deleteIcon={<CancelIcon {...props.removeProps} />}
-    />
-  );
-}
-
-function Menu(props) {
-  return (
-    <Paper square className={props.selectProps.classes.paper} {...props.innerProps}>
-      {props.children}
-    </Paper>
-  );
-}
-
 const components = {
   Control,
-  Menu,
-  MultiValue,
   NoOptionsMessage,
   Option,
   Placeholder,
@@ -208,19 +144,8 @@ const components = {
 };
 
 class mySelect extends React.Component {
-  state = {
-    single: null,
-    multi: null,
-  };
-
-  handleChange = name => value => {
-    this.setState({
-      [name]: value,
-    });
-  };
-
   render() {
-    const { classes, theme } = this.props;
+    const { classes, theme, options, onChange, placeholder, value, onInputChange } = this.props;
 
     const selectStyles = {
       input: base => ({
@@ -238,11 +163,12 @@ class mySelect extends React.Component {
           <Select
             classes={classes}
             styles={selectStyles}
-            options={suggestions}
+            options={options}
             components={components}
-            value={this.state.single}
-            onChange={this.handleChange('single')}
-            placeholder="Search a country (start with a)"
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            onInputChange={onInputChange}
           />
         </NoSsr>
       </div>
